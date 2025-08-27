@@ -1,43 +1,103 @@
 local log = require("search-and-replace.util.log")
 
-local state = { enabled = false }
+local state = { buffer = nil, window = nil, path = nil }
 
 ---Sets the state to its original value.
 ---
 ---@private
 function state:init()
-    self.enabled = false
+    self.buffer = nil
+    self.path = nil
+    self.window = nil
 end
 
 ---Saves the state in the global _G.SearchAndReplace.state object.
 ---
 ---@private
 function state:save()
-    log.debug("state.save", "saving state globally to _G.SearchAndReplace.state")
-
     _G.SearchAndReplace.state = self
 end
 
---- Sets the global state as enabled.
+---Creates a buffer for a prompt.
 ---
+--- @param scope string
+--- @param cb function(string)
 ---@private
-function state:set_enabled()
-    self.enabled = true
+function state:create_buffer(scope, cb)
+    self.buffer = vim.api.nvim_create_buf(false, true)
+
+    vim.api.nvim_buf_set_option(self.buffer, "buftype", "prompt")
+    vim.fn.prompt_setprompt(self.buffer, "Replace with: ")
+
+    vim.fn.prompt_setcallback(self.buffer, function(text)
+        self.cleanup(self, scope)
+        local word = vim.fn.expand("<cword>")
+        cb(word)
+        vim.cmd("cfdo %s/\\<" .. word .. "\\>/" .. text .. "/g | update")
+
+        log.debug(scope, "replace done")
+    end)
+
+    vim.keymap.set({ "i", "n" }, "<Esc>", function()
+        log.debug(scope, "requested closing")
+        self.cleanup(self, scope)
+    end, { buffer = self.buffer })
+
+    log.debug(scope, "prompt buffer created")
+
+    self.save(self)
 end
 
---- Sets the global state as disabled.
+---Gets the buffer id.
 ---
+---@return number: the buffer id.
 ---@private
-function state:set_disabled()
-    self.enabled = false
+function state:get_buffer()
+    return self.buffer
 end
 
----Whether the SearchAndReplace is enabled or not.
+---Creates a window for the buffer.
 ---
----@return boolean: the `enabled` state value.
+--- @param scope string
+--- @param buffer number: the buffer id.
 ---@private
-function state:get_enabled()
-    return self.enabled
+function state:create_window(scope, buffer)
+    self.window = vim.api.nvim_open_win(buffer, true, {
+        style = "minimal",
+        relative = "editor",
+        width = 40,
+        height = 1,
+        row = math.floor((vim.o.lines - 5) / 2),
+        col = math.floor((vim.o.columns - 40) / 2),
+        border = "rounded",
+    })
+    vim.keymap.set("i", "<Esc>", function()
+        vim.api.nvim_win_close(self.window, true)
+    end, { buffer = buffer })
+
+    log.debug(scope, "window for buffer %d created", buffer)
+
+    self.save(self)
+end
+
+---Closes the window.
+---
+--- @param scope string
+---@private
+function state:cleanup(scope)
+    if self.window and vim.api.nvim_win_is_valid(self.window) then
+        log.debug(scope, "closing window")
+
+        vim.api.nvim_win_close(self.window, true)
+    end
+
+    if self.buffer and vim.api.nvim_buf_is_valid(self.buffer) then
+        log.debug(scope, "deleting buffer")
+        vim.api.nvim_buf_delete(self.buffer, { force = true })
+    end
+
+    self.window = nil
+    self.buffer = nil
 end
 
 return state

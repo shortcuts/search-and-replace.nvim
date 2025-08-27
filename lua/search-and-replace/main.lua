@@ -1,57 +1,30 @@
-local log = require("search-and-replace.util.log")
 local state = require("search-and-replace.state")
 
 -- internal methods
 local main = {}
 
--- Toggle the plugin by calling the `enable`/`disable` methods respectively.
---
----@param scope string: internal identifier for logging purposes.
----@private
-function main.toggle(scope)
-    if state.get_enabled(state) then
-        log.debug(scope, "search-and-replace is now disabled!")
-
-        return main.disable(scope)
-    end
-
-    log.debug(scope, "search-and-replace is now enabled!")
-
-    main.enable(scope)
-end
-
---- Initializes the plugin, sets event listeners and internal state.
+--- Replace the word under cursor in the current project.
 ---
 --- @param scope string: internal identifier for logging purposes.
 ---@private
-function main.enable(scope)
-    if state.get_enabled(state) then
-        log.debug(scope, "search-and-replace is already enabled")
+function main.replace_in_project(scope)
+    state.create_buffer(state, scope, function(word)
+        vim.cmd("vimgrep /\\<" .. word .. "\\>/gj **/*.*")
+    end)
 
-        return
-    end
-
-    state.set_enabled(state)
-
-    -- saves the state globally to `_G.SearchAndReplace.state`
-    state.save(state)
+    state.create_window(state, scope, state.get_buffer(state))
 end
 
---- Disables the plugin for the given tab, clear highlight groups and autocmds, closes side buffers and resets the internal state.
+--- Replace the word under cursor by references using vim.lsp.buf.references().
 ---
 --- @param scope string: internal identifier for logging purposes.
 ---@private
-function main.disable(scope)
-    if not state.get_enabled(state) then
-        log.debug(scope, "search-and-replace is already disabled")
+function main.replace_by_references(scope)
+    state.create_buffer(state, scope, function()
+        vim.lsp.buf.references()
+    end)
 
-        return
-    end
-
-    state.set_disabled(state)
-
-    -- saves the state globally to `_G.SearchAndReplace.state`
-    state.save(state)
+    state.create_window(state, scope, state.get_buffer(state))
 end
 
 return main

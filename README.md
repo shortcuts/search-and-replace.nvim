@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    > A catch phrase that describes your plugin.
+    Your regular vimgrep and cfdo/bufdo commands, but on steroids
 </p>
 
 <div align="center">

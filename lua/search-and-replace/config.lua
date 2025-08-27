@@ -1,5 +1,3 @@
-local log = require("search-and-replace.util.log")
-
 local SearchAndReplace = {}
 
 --- SearchAndReplace configuration with its default values.
@@ -40,8 +38,6 @@ end
 ---@usage `require("search-and-replace").setup()` (add `{}` with your |SearchAndReplace.options| table)
 function SearchAndReplace.setup(options)
     SearchAndReplace.options = SearchAndReplace.defaults(options or {})
-
-    log.warn_deprecation(SearchAndReplace.options)
 
     return SearchAndReplace.options
 end
