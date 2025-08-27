@@ -1,5 +1,5 @@
-YourPluginName.disable()	neovim-plugin-boilerplate.txt	/*YourPluginName.disable()*
-YourPluginName.enable()	neovim-plugin-boilerplate.txt	/*YourPluginName.enable()*
-YourPluginName.options	neovim-plugin-boilerplate.txt	/*YourPluginName.options*
-YourPluginName.setup()	neovim-plugin-boilerplate.txt	/*YourPluginName.setup()*
-YourPluginName.toggle()	neovim-plugin-boilerplate.txt	/*YourPluginName.toggle()*
+SearchAndReplace.disable()	search-and-replace.txt	/*SearchAndReplace.disable()*
+SearchAndReplace.enable()	search-and-replace.txt	/*SearchAndReplace.enable()*
+SearchAndReplace.options	search-and-replace.txt	/*SearchAndReplace.options*
+SearchAndReplace.setup()	search-and-replace.txt	/*SearchAndReplace.setup()*
+SearchAndReplace.toggle()	search-and-replace.txt	/*SearchAndReplace.toggle()*

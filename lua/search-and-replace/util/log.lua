@@ -21,7 +21,11 @@ end
 ---@param ... any: the arguments of the formatted string.
 ---@private
 function log.notify(scope, level, verbose, str, ...)
-    if not verbose and _G.YourPluginName.config ~= nil and not _G.YourPluginName.config.debug then
+    if
+        not verbose
+        and _G.SearchAndReplace.config ~= nil
+        and not _G.SearchAndReplace.config.debug
+    then
         return
     end
 
@@ -38,9 +42,9 @@ function log.notify(scope, level, verbose, str, ...)
     end
 
     vim.notify(
-        string.format("[your-plugin-name.nvim@%s] %s", scope, string.format(str, ...)),
+        string.format("[search-and-replace.nvim@%s] %s", scope, string.format(str, ...)),
         level,
-        { title = "your-plugin-name.nvim" }
+        { title = "search-and-replace.nvim" }
     )
 end
 
@@ -79,7 +83,7 @@ function log.warn_deprecation(options)
             "deprecated_options",
             vim.log.levels.WARN,
             true,
-            "use `:h YourPluginName.options` to read more."
+            "use `:h SearchAndReplace.options` to read more."
         )
     end
 end
