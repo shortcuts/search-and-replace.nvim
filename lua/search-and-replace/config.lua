@@ -22,6 +22,10 @@ SearchAndReplace.options = {
         -- When `false`, the mapping is not created.
         ---@type string
         search_and_replace_by_reference = "<Leader>srr",
+        -- Sets a global mapping to Neovim, which will trigger the "undo" function.
+        -- When `false`, the mapping is not created.
+        ---@type string
+        undo = "<Leader>sru",
     },
 }
 
@@ -93,6 +97,7 @@ function SearchAndReplace.setup(options)
     register_mappings(SearchAndReplace.options.mappings, {
         search_and_replace_in_project = ":SearchAndReplaceInProject<CR>",
         search_and_replace_by_reference = ":SearchAndReplaceByReference<CR>",
+        undo = ":SearchAndReplaceUndo<CR>",
     })
 
     return SearchAndReplace.options

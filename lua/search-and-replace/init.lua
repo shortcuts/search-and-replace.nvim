@@ -11,6 +11,10 @@ function SearchAndReplace.replace_by_references()
     main.replace_by_references("replace_by_references")
 end
 
+function SearchAndReplace.undo()
+    main.undo("undo")
+end
+
 function SearchAndReplace.setup(opts)
     _G.SearchAndReplace.config = config.setup(opts)
 end
