@@ -27,7 +27,7 @@ function state:create_buffer(scope, cb)
     self.buffer = vim.api.nvim_create_buf(false, true)
 
     vim.api.nvim_buf_set_option(self.buffer, "buftype", "prompt")
-    vim.fn.prompt_setprompt(self.buffer, "Replace with: ")
+    vim.fn.prompt_setprompt(self.buffer, "> ")
 
     vim.fn.prompt_setcallback(self.buffer, function(text)
         self.cleanup(self, scope)
@@ -71,6 +71,8 @@ function state:create_window(scope, buffer)
         row = math.floor((vim.o.lines - 5) / 2),
         col = math.floor((vim.o.columns - 40) / 2),
         border = "rounded",
+        title = "Replace with:",
+        title_pos = "center",
     })
     vim.keymap.set("i", "<Esc>", function()
         vim.api.nvim_win_close(self.window, true)
