@@ -1,3 +1,4 @@
+local api = require("search-and-replace.util.api")
 local state = require("search-and-replace.state")
 
 -- internal methods
@@ -13,8 +14,7 @@ function main.replace_in_project(scope)
     state.create_buffer(state, scope, function(word, replace)
         vim.cmd("vimgrep /\\<" .. word .. "\\>/gj **/*.*")
         state.backup_qflist(state, scope)
-        vim.cmd("cfdo %s/\\<" .. word .. "\\>/" .. replace .. "/g")
-        vim.cmd("cfdo update")
+        api.replace(word, replace)
     end)
 
     state.create_window(state, scope, state.buffer)
@@ -36,8 +36,7 @@ function main.replace_by_references(scope)
         vim.defer_fn(function()
             vim.api.nvim_set_current_win(current_win)
             state.backup_qflist(state, scope)
-            vim.cmd("cfdo %s/\\<" .. word .. "\\>/" .. replace .. "/g")
-            vim.cmd("cfdo update")
+            api.replace(word, replace)
         end, 500)
     end)
 
