@@ -109,13 +109,10 @@ function state:create_buffer(scope, cb)
         desc = "Keeps track of the state after entering new windows",
     })
 
-    vim.fn.prompt_setcallback(self.buffer, function(text)
+    vim.fn.prompt_setcallback(self.buffer, function(replace)
         self.cleanup(self, scope)
-        local word = vim.fn.expand("<cword>")
-        cb(word)
-        self.backup_qflist(self, scope)
-        vim.cmd("cfdo %s/\\<" .. word .. "\\>/" .. text .. "/g")
-        vim.cmd("cfdo update")
+
+        cb(vim.fn.expand("<cword>"), replace)
 
         log.debug(scope, "replace done")
     end)
