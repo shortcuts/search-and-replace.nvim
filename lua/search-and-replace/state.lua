@@ -47,13 +47,14 @@ function state:backup_qflist(scope)
     self.backup = {}
 
     local qflist = vim.fn.getqflist({ items = 0 }).items
-    log.debug(scope, "found %d items in qflist", vim.fn.len(qflist))
 
-    if #qflist == 0 then
+    if vim.fn.len(qflist) == 0 then
         log.debug(scope, "no match found for %s", self.selection)
 
         return false
     end
+
+    log.debug(scope, "found %d items in qflist", vim.fn.len(qflist))
 
     for _, item in ipairs(qflist) do
         local bufnr = item.bufnr

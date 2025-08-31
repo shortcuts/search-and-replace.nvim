@@ -7,7 +7,6 @@ local api = {}
 ---@private
 function api.replace(selection, replace)
     selection = selection or ""
-    vim.print("cfdo %s/" .. selection .. "/" .. replace .. "/g")
     vim.cmd("cfdo %s/" .. selection .. "/" .. replace .. "/g")
     vim.cmd("cfdo update")
 end
@@ -31,7 +30,7 @@ function api.get_visual_selection()
 
     -- shouldn't happen but in case it does
     local lines = vim.fn.getline(line_start, line_end)
-    if #lines ~= 1 then
+    if vim.fn.len(lines) == 1 then
         return nil
     end
 
