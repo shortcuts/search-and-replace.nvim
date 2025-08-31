@@ -56,24 +56,28 @@ function state:backup_qflist(scope)
 
     log.debug(scope, "found %d items in qflist", vim.fn.len(qflist))
 
+    local total = 0
+
     for _, item in ipairs(qflist) do
         local bufnr = item.bufnr
         if bufnr > 0 and vim.api.nvim_buf_is_valid(bufnr) then
             local name = vim.api.nvim_buf_get_name(bufnr)
-            if name ~= "" and not self.backup[bufnr] then
+            if name ~= "" and self.backup[name] == nil then
                 local tmpfile = vim.fn.tempname() .. ".undo"
                 vim.api.nvim_set_current_buf(bufnr)
 
                 local seq = vim.fn.undotree().seq_cur or 0
                 vim.cmd("silent! wundo " .. vim.fn.fnameescape(tmpfile))
 
-                self.backup[bufnr] = { tmp = tmpfile, seq = seq }
+                self.backup[name] = { bufnr = bufnr, tmp = tmpfile, seq = seq }
                 log.debug(scope, "saved undo for %s -> %s (seq=%d)", name, tmpfile, seq)
+
+                total = total + 1
             end
         end
     end
 
-    log.debug(scope, "stored %d items in backup", vim.fn.len(self.backup))
+    log.debug(scope, "stored %d items in backup", total)
 
     return true
 end
@@ -90,18 +94,22 @@ function state:restore_backup(scope)
 
     log.debug(scope, "restoring %d items", vim.fn.len(self.backup))
 
-    for bufnr, data in pairs(self.backup) do
-        local tmpfile, seq = data.tmp, data.seq
-        if vim.fn.filereadable(tmpfile) == 1 and vim.api.nvim_buf_is_valid(bufnr) then
-            vim.api.nvim_set_current_buf(bufnr)
-            vim.cmd("silent! rundo " .. vim.fn.fnameescape(tmpfile))
-            -- jump back to recorded seq position
-            if seq and seq > 0 then
-                vim.cmd("silent! undo " .. seq)
-            end
-            log.debug(scope, "restored undo for %s (seq=%d)", vim.api.nvim_buf_get_name(bufnr), seq)
+    for name, data in pairs(self.backup) do
+        log.debug(scope, "restoring %s", name)
+
+        if vim.api.nvim_buf_is_valid(data.bufnr) then
+            vim.api.nvim_set_current_buf(data.bufnr)
+            vim.cmd("silent! rundo " .. vim.fn.fnameescape(data.tmpfile))
+            vim.cmd("silent! undo " .. data.seq)
+            vim.cmd("update")
+            log.debug(
+                scope,
+                "restored undo for %s (seq=%d)",
+                vim.api.nvim_buf_get_name(data.bufnr),
+                data.seq
+            )
         else
-            log.debug(scope, "skipped %s (invalid buffer or missing file)", tostring(bufnr))
+            log.debug(scope, "skipped %s (invalid buffer or missing file)", name)
         end
     end
 
@@ -157,10 +165,9 @@ end
 ---Creates a window for the buffer.
 ---
 --- @param scope string
---- @param buffer number: the buffer id.
 ---@private
-function state:create_window(scope, buffer)
-    self.window = vim.api.nvim_open_win(buffer, true, {
+function state:create_window(scope)
+    self.window = vim.api.nvim_open_win(self.buffer, true, {
         style = "minimal",
         relative = "editor",
         width = vim.o.columns,
@@ -173,9 +180,9 @@ function state:create_window(scope, buffer)
     })
     vim.keymap.set("i", "<Esc>", function()
         vim.api.nvim_win_close(self.window, true)
-    end, { buffer = buffer })
+    end, { buffer = self.buffer })
 
-    log.debug(scope, "window for buffer %d created", buffer)
+    log.debug(scope, "window for buffer %d created", self.buffer)
 
     self.save(self)
 end

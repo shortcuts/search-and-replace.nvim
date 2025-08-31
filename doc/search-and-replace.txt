@@ -7,12 +7,12 @@ Toggle the plugin by calling the `enable`/`disable` methods respectively.
 ------------------------------------------------------------------------------
                                                      *SearchAndReplace.enable()*
                        `SearchAndReplace.enable`({scope})
-Initializes the plugin, sets event listeners and internal state.
+Initializes the plugin, sets event listeners and o state.
 
 ------------------------------------------------------------------------------
                                                     *SearchAndReplace.disable()*
                           `SearchAndReplace.disable`()
-Disables the plugin, clear highlight groups and autocmds, closes side buffers and resets the internal state.
+Disables the plugin, clear highlight groups and autocmds, closes side buffers and resets the o state.
 
 
 ==============================================================================
