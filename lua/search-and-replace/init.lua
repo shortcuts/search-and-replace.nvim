@@ -3,12 +3,12 @@ local config = require("search-and-replace.config")
 
 local SearchAndReplace = {}
 
-function SearchAndReplace.replace_in_project()
-    main.replace_in_project("replace_in_project")
+function SearchAndReplace.replace_by_pattern()
+    main.replace_by_pattern("by pattern")
 end
 
 function SearchAndReplace.replace_by_references()
-    main.replace_by_references("replace_by_references")
+    main.replace_by_references("by reference")
 end
 
 function SearchAndReplace.undo()

@@ -1,4 +1,5 @@
 local log = require("search-and-replace.util.log")
+local api = require("search-and-replace.util.api")
 
 local state = {}
 
@@ -37,24 +38,36 @@ function state:save()
 end
 
 ---Saves the current undo state for every files of the quickfix list, in order to be able to restore it later.
+---If nothing is found in the qflist, a log is emitted to hint the user know that there was no matches.
 ---
 --- @param scope string
+--- @return boolean
 ---@private
 function state:backup_qflist(scope)
     self.backup = {}
 
     local qflist = vim.fn.getqflist({ items = 0 }).items
-
     log.debug(scope, "found %d items in qflist", vim.fn.len(qflist))
 
+    if #qflist == 0 then
+        log.debug(scope, "no match found for %s", self.selection)
+
+        return false
+    end
+
     for _, item in ipairs(qflist) do
-        local buf = vim.fn.bufnr(item.bufnr)
-        if buf > 0 and vim.api.nvim_buf_is_valid(buf) then
-            if vim.api.nvim_buf_get_name(buf) ~= "" and self.backup[buf] == nil then
+        local bufnr = item.bufnr
+        if bufnr > 0 and vim.api.nvim_buf_is_valid(bufnr) then
+            local name = vim.api.nvim_buf_get_name(bufnr)
+            if name ~= "" and not self.backup[bufnr] then
                 local tmpfile = vim.fn.tempname() .. ".undo"
-                vim.api.nvim_set_current_buf(buf)
-                vim.cmd("silent! wundo " .. tmpfile)
-                self.backup[buf] = tmpfile
+                vim.api.nvim_set_current_buf(bufnr)
+
+                local seq = vim.fn.undotree().seq_cur or 0
+                vim.cmd("silent! wundo " .. vim.fn.fnameescape(tmpfile))
+
+                self.backup[bufnr] = { tmp = tmpfile, seq = seq }
+                log.debug(scope, "saved undo for %s -> %s (seq=%d)", name, tmpfile, seq)
             end
         end
     end
@@ -67,15 +80,25 @@ end
 --- @param scope string
 ---@private
 function state:restore_backup(scope)
-    log.debug(scope, "found %d items in backup", vim.fn.len(self.backup))
+    if not self.backup then
+        log.debug(scope, "no backup found")
+        return
+    end
 
-    for bufnr, tmpfile in pairs(self.backup) do
-        vim.print(tmpfile)
-        vim.print(bufnr)
+    log.debug(scope, "restoring %d items", vim.fn.len(self.backup))
+
+    for bufnr, data in pairs(self.backup) do
+        local tmpfile, seq = data.tmp, data.seq
         if vim.fn.filereadable(tmpfile) == 1 and vim.api.nvim_buf_is_valid(bufnr) then
-            vim.print("yes")
             vim.api.nvim_set_current_buf(bufnr)
-            vim.cmd("sil rundo " .. vim.fn.fnameescape(tmpfile))
+            vim.cmd("silent! rundo " .. vim.fn.fnameescape(tmpfile))
+            -- jump back to recorded seq position
+            if seq and seq > 0 then
+                vim.cmd("silent! undo " .. seq)
+            end
+            log.debug(scope, "restored undo for %s (seq=%d)", vim.api.nvim_buf_get_name(bufnr), seq)
+        else
+            log.debug(scope, "skipped %s (invalid buffer or missing file)", tostring(bufnr))
         end
     end
 
@@ -94,6 +117,7 @@ function state:create_buffer(scope, cb)
     vim.api.nvim_buf_set_option(self.buffer, "bufhidden", "wipe")
     vim.api.nvim_buf_set_option(self.buffer, "buflisted", false)
     vim.fn.prompt_setprompt(self.buffer, "> ")
+    self.selection = api.get_visual_selection() or vim.fn.expand("<cword>")
 
     vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
         callback = function()
@@ -112,7 +136,7 @@ function state:create_buffer(scope, cb)
     vim.fn.prompt_setcallback(self.buffer, function(replace)
         self.cleanup(self, scope)
 
-        cb(vim.fn.expand("<cword>"), replace)
+        cb(self.selection, replace)
 
         log.debug(scope, "replace done")
     end)
@@ -136,12 +160,12 @@ function state:create_window(scope, buffer)
     self.window = vim.api.nvim_open_win(buffer, true, {
         style = "minimal",
         relative = "editor",
-        width = 40,
+        width = vim.o.columns,
         height = 1,
-        row = math.floor((vim.o.lines - 5) / 2),
-        col = math.floor((vim.o.columns - 40) / 2),
+        row = math.floor((vim.o.lines - 1) / 2),
+        col = math.floor(vim.o.columns / 2),
         border = "rounded",
-        title = "Replace with:",
+        title = string.format('Replace %s: "%s"', scope, self.selection),
         title_pos = "center",
     })
     vim.keymap.set("i", "<Esc>", function()

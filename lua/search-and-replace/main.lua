@@ -8,13 +8,15 @@ local main = {}
 ---
 --- @param scope string: internal identifier for logging purposes.
 ---@private
-function main.replace_in_project(scope)
+function main.replace_by_pattern(scope)
     state.init(state)
 
-    state.create_buffer(state, scope, function(word, replace)
-        vim.cmd("vimgrep /\\<" .. word .. "\\>/gj **/*.*")
-        state.backup_qflist(state, scope)
-        api.replace(word, replace)
+    state.create_buffer(state, scope, function(selection, replace)
+        selection = selection or ""
+        vim.cmd("vimgrep /" .. selection .. "/g **")
+        if state.backup_qflist(state, scope) then
+            api.replace(selection, replace)
+        end
     end)
 
     state.create_window(state, scope, state.buffer)
@@ -27,7 +29,7 @@ end
 function main.replace_by_references(scope)
     state.init(state)
 
-    state.create_buffer(state, scope, function(word, replace)
+    state.create_buffer(state, scope, function(selection, replace)
         -- references is async so we need to store the window to restore focus
         local current_win = vim.api.nvim_get_current_win()
 
@@ -35,8 +37,9 @@ function main.replace_by_references(scope)
 
         vim.defer_fn(function()
             vim.api.nvim_set_current_win(current_win)
-            state.backup_qflist(state, scope)
-            api.replace(word, replace)
+            if state.backup_qflist(state, scope) then
+                api.replace(selection, replace)
+            end
         end, 500)
     end)
 

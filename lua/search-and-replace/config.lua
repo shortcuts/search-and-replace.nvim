@@ -14,10 +14,10 @@ SearchAndReplace.options = {
         -- When `true`, creates all the mappings that are not set to `false`.
         ---@type boolean
         enabled = false,
-        -- Sets a global mapping to Neovim, which will trigger the "in project" replace function.
+        -- Sets a global mapping to Neovim, which will trigger the "by pattern" replace function.
         -- When `false`, the mapping is not created.
         ---@type string
-        search_and_replace_in_project = "<Leader>srp",
+        search_and_replace_by_pattern = "<Leader>srp",
         -- Sets a global mapping to Neovim, which will trigger the "by reference" replace function.
         -- When `false`, the mapping is not created.
         ---@type string
@@ -68,21 +68,9 @@ local function register_mappings(options, mappings)
             return
         end
 
-        if (name == "widthUp" or name == "widthDown") and type(options[name]) ~= "string" then
-            assert(
-                type(options[name]) == "table"
-                    and options[name]["mapping"] ~= nil
-                    and options[name]["value"] ~= nil,
-                string.format(
-                    "`%s` must be a string or a table with the following properties {mapping: 'your_mapping', value: 5}",
-                    name
-                )
-            )
-            vim.api.nvim_set_keymap("n", options[name].mapping, command, { silent = true })
-        else
-            assert(type(options[name]) == "string", string.format("`%s` must be a string", name))
-            vim.api.nvim_set_keymap("n", options[name], command, { silent = true })
-        end
+        assert(type(options[name]) == "string", string.format("`%s` must be a string", name))
+        vim.api.nvim_set_keymap("n", options[name], command, { silent = true })
+        vim.api.nvim_set_keymap("v", options[name], command, { silent = true })
     end
 end
 
@@ -95,7 +83,7 @@ function SearchAndReplace.setup(options)
     SearchAndReplace.options = SearchAndReplace.defaults(options or {})
 
     register_mappings(SearchAndReplace.options.mappings, {
-        search_and_replace_in_project = ":SearchAndReplaceInProject<CR>",
+        search_and_replace_by_pattern = ":SearchAndReplaceByPattern<CR>",
         search_and_replace_by_reference = ":SearchAndReplaceByReference<CR>",
         undo = ":SearchAndReplaceUndo<CR>",
     })
