@@ -74,6 +74,8 @@ function state:backup_qflist(scope)
     end
 
     log.debug(scope, "stored %d items in backup", vim.fn.len(self.backup))
+
+    return true
 end
 
 ---Restores the currently saved backup
