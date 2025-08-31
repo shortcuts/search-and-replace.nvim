@@ -1,22 +1,5 @@
 ==============================================================================
 ------------------------------------------------------------------------------
-                                                     *SearchAndReplace.toggle()*
-                          `SearchAndReplace.toggle`()
-Toggle the plugin by calling the `enable`/`disable` methods respectively.
-
-------------------------------------------------------------------------------
-                                                     *SearchAndReplace.enable()*
-                       `SearchAndReplace.enable`({scope})
-Initializes the plugin, sets event listeners and o state.
-
-------------------------------------------------------------------------------
-                                                    *SearchAndReplace.disable()*
-                          `SearchAndReplace.disable`()
-Disables the plugin, clear highlight groups and autocmds, closes side buffers and resets the o state.
-
-
-==============================================================================
-------------------------------------------------------------------------------
                                                       *SearchAndReplace.options*
                            `SearchAndReplace.options`
 SearchAndReplace configuration with its default values.
@@ -28,6 +11,25 @@ Default values:
   SearchAndReplace.options = {
       -- Prints useful logs about what event are triggered, and reasons actions are executed.
       debug = false,
+      -- Creates mappings for you to easily interact with the exposed commands.
+      ---@type table
+      mappings = {
+          -- When `true`, creates all the mappings that are not set to `false`.
+          ---@type boolean
+          enabled = false,
+          -- Sets a global mapping to Neovim, which will trigger the "by pattern" replace function.
+          -- When `false`, the mapping is not created.
+          ---@type string
+          search_and_replace_by_pattern = "<Leader>srp",
+          -- Sets a global mapping to Neovim, which will trigger the "by reference" replace function.
+          -- When `false`, the mapping is not created.
+          ---@type string
+          search_and_replace_by_reference = "<Leader>srr",
+          -- Sets a global mapping to Neovim, which will trigger the "undo" function.
+          -- When `false`, the mapping is not created.
+          ---@type string
+          undo = "<Leader>sru",
+      },
   }
 
 <

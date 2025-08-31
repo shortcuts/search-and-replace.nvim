@@ -1,5 +1,2 @@
-SearchAndReplace.disable()	search-and-replace.txt	/*SearchAndReplace.disable()*
-SearchAndReplace.enable()	search-and-replace.txt	/*SearchAndReplace.enable()*
 SearchAndReplace.options	search-and-replace.txt	/*SearchAndReplace.options*
 SearchAndReplace.setup()	search-and-replace.txt	/*SearchAndReplace.setup()*
-SearchAndReplace.toggle()	search-and-replace.txt	/*SearchAndReplace.toggle()*
