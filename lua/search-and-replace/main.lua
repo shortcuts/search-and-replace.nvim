@@ -4,9 +4,28 @@ local state = require("search-and-replace.state")
 -- o methods
 local main = {}
 
---- Replace the word under cursor in the current project.
+--- Opens the prompt for a vimgrep term to apply in the current project, then an other
+--- prompt to replace by pattern.
 ---
---- @param scope string: o identifier for logging purposes.
+--- @param scope string: identifier for logging purposes.
+---@private
+function main.search_and_replace_by_pattern(scope)
+    state.init(state)
+
+    state.create_buffer(state, scope, function(selection, replace)
+        selection = selection or ""
+        vim.cmd("vimgrep /" .. selection .. "/g **")
+        if state.backup_qflist(state, scope) then
+            api.replace(selection, replace)
+        end
+    end)
+
+    state.create_window(state, scope)
+end
+
+--- Replaces the word under cursor or current visual selection in the current project.
+---
+--- @param scope string: identifier for logging purposes.
 ---@private
 function main.replace_by_pattern(scope)
     state.init(state)
@@ -22,9 +41,9 @@ function main.replace_by_pattern(scope)
     state.create_window(state, scope)
 end
 
---- Replace the word under cursor by references using vim.lsp.buf.references().
+--- Replaces the word under cursor or current visual selection using vim.lsp.buf.references().
 ---
---- @param scope string: o identifier for logging purposes.
+--- @param scope string: identifier for logging purposes.
 ---@private
 function main.replace_by_references(scope)
     state.init(state)
@@ -46,11 +65,11 @@ function main.replace_by_references(scope)
     state.create_window(state, scope)
 end
 
---- Undoes the last `replace_*` operation by restoring the saved backup.
+--- Restores the backup files of the last `replace_*` operation.
 ---
---- @param scope string: o identifier for logging purposes.
+--- @param scope string: identifier for logging purposes.
 ---@private
-function main.undo(scope)
+function main.replace_undo(scope)
     state.restore_backup(state, scope)
 end
 

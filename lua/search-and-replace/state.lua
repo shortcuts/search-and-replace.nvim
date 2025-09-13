@@ -70,14 +70,15 @@ function state:backup_qflist(scope)
                 vim.cmd("silent! wundo " .. vim.fn.fnameescape(tmpfile))
 
                 self.backup[name] = { bufnr = bufnr, tmp = tmpfile, seq = seq }
-                log.debug(scope, "saved undo for %s -> %s (seq=%d)", name, tmpfile, seq)
+                -- keep for debug but way too spammy
+                -- log.debug(scope, "saved undo for '%s' -> '%s' with seq '%d'", name, tmpfile, seq)
 
                 total = total + 1
             end
         end
     end
 
-    log.debug(scope, "stored %d items in backup", total)
+    log.debug(scope, "stored '%d' items in backup", total)
 
     return true
 end
@@ -92,10 +93,10 @@ function state:restore_backup(scope)
         return
     end
 
-    log.debug(scope, "restoring %d items", vim.fn.len(self.backup))
+    log.debug(scope, "restoring '%d' items", vim.fn.len(self.backup))
 
     for name, data in pairs(self.backup) do
-        log.debug(scope, "restoring %s", name)
+        log.debug(scope, "restoring '%s'", name)
 
         if vim.api.nvim_buf_is_valid(data.bufnr) then
             vim.api.nvim_set_current_buf(data.bufnr)
@@ -104,12 +105,12 @@ function state:restore_backup(scope)
             vim.cmd("update")
             log.debug(
                 scope,
-                "restored undo for %s (seq=%d)",
+                "restored undo for '%s'",
                 vim.api.nvim_buf_get_name(data.bufnr),
                 data.seq
             )
         else
-            log.debug(scope, "skipped %s (invalid buffer or missing file)", name)
+            log.debug(scope, "skipped '%s' (invalid buffer or missing file)", name)
         end
     end
 
@@ -138,7 +139,16 @@ function state:create_buffer(scope, cb)
                 end
             end)
 
-            vim.api.nvim_command("startinsert!")
+            if not _G.SearchAndReplace.config.default_replace_prompt_to_normal_mode then
+                vim.api.nvim_command("startinsert!")
+            end
+
+            if
+                _G.SearchAndReplace.config.default_replace_prompt_to_selection
+                and self.selection ~= ""
+            then
+                vim.api.nvim_buf_set_text(self.buffer, 0, 0, 0, 0, { self.selection })
+            end
         end,
         group = self.augroup_name,
         desc = "Keeps track of the state after entering new windows",
@@ -149,15 +159,10 @@ function state:create_buffer(scope, cb)
 
         cb(self.selection, replace)
 
-        log.debug(scope, "replace done")
+        log.debug(scope, "replace with '%s' done", replace)
     end)
 
-    vim.keymap.set({ "i", "n" }, "<Esc>", function()
-        log.debug(scope, "requested closing")
-        self.cleanup(self, scope)
-    end, { buffer = self.buffer })
-
-    log.debug(scope, "prompt buffer created")
+    log.debug(scope, "prompt buffer created, searching for '%s'", self.selection)
 
     self.save(self)
 end
@@ -170,19 +175,19 @@ function state:create_window(scope)
     self.window = vim.api.nvim_open_win(self.buffer, true, {
         style = "minimal",
         relative = "editor",
-        width = vim.o.columns,
+        width = math.floor(vim.o.columns / 3),
         height = 1,
         row = math.floor((vim.o.lines - 1) / 2),
-        col = math.floor(vim.o.columns / 2),
+        col = math.floor(vim.o.columns / 3),
         border = "rounded",
-        title = string.format('Replace %s: "%s"', scope, self.selection),
+        title = string.format("Replacing '%s'", self.selection),
         title_pos = "center",
     })
     vim.keymap.set("i", "<Esc>", function()
         vim.api.nvim_win_close(self.window, true)
     end, { buffer = self.buffer })
 
-    log.debug(scope, "window for buffer %d created", self.buffer)
+    log.debug(scope, "window for buffer '%d' created", self.buffer)
 
     self.save(self)
 end
@@ -207,7 +212,9 @@ function state:cleanup(scope)
 
     self.reset(self)
 
-    vim.api.nvim_command("stopinsert")
+    if not _G.SearchAndReplace.config.default_replace_prompt_to_normal_mode then
+        vim.api.nvim_command("stopinsert")
+    end
 end
 
 return state

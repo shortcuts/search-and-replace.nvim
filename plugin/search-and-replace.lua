@@ -5,14 +5,14 @@ end
 
 _G.SearchAndReplaceLoaded = true
 
-vim.api.nvim_create_user_command("SearchAndReplaceByPattern", function()
+vim.api.nvim_create_user_command("ReplaceByPattern", function()
     require("search-and-replace").replace_by_pattern()
 end, { range = true })
 
-vim.api.nvim_create_user_command("SearchAndReplaceByReferences", function()
+vim.api.nvim_create_user_command("ReplaceByReferences", function()
     require("search-and-replace").replace_by_references()
 end, { range = true })
 
-vim.api.nvim_create_user_command("SearchAndReplaceUndo", function()
+vim.api.nvim_create_user_command("ReplaceUndo", function()
     require("search-and-replace").undo()
 end, {})
