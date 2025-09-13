@@ -16,7 +16,7 @@ function SearchAndReplace.replace_by_references()
 end
 
 function SearchAndReplace.replace_undo()
-    main.undo("replace undo")
+    main.replace_undo("replace undo")
 end
 
 function SearchAndReplace.setup(opts)

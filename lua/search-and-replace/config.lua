@@ -32,7 +32,7 @@ SearchAndReplace.options = {
         -- When `false`, the mapping is not created.
         ---@type string
         replace_by_reference = "<Leader>rr",
-        -- Sets a global mapping to Neovim, which will trigger the "undo" function.
+        -- Sets a global mapping to Neovim, which will trigger the "undo" function for the last `replace_by_*` operation.
         -- When `false`, the mapping is not created.
         ---@type string
         replace_undo = "<Leader>ru",

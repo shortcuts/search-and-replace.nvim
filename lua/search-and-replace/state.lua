@@ -147,8 +147,7 @@ function state:create_buffer(scope, cb)
                 _G.SearchAndReplace.config.default_replace_prompt_to_selection
                 and self.selection ~= ""
             then
-                vim.fn.prompt_setprompt(self.buffer, self.selection)
-                -- vim.api.nvim_buf_set_text(self.buffer, 0, 0, 0, 0, { self.selection })
+                vim.api.nvim_buf_set_lines(self.buffer, 0, -1, false, { "> " .. self.selection })
             end
         end,
         group = self.augroup_name,
@@ -172,7 +171,7 @@ end
 ---
 --- @param scope string
 ---@private
-function state:create_window(scope)
+function state:create_windfooow(scope)
     self.window = vim.api.nvim_open_win(self.buffer, true, {
         style = "minimal",
         relative = "editor",

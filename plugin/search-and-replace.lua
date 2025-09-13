@@ -14,5 +14,5 @@ vim.api.nvim_create_user_command("ReplaceByReferences", function()
 end, { range = true })
 
 vim.api.nvim_create_user_command("ReplaceUndo", function()
-    require("search-and-replace").undo()
+    require("search-and-replace").replace_undo()
 end, {})
