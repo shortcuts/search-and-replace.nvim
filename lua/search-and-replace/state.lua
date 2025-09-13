@@ -171,7 +171,7 @@ end
 ---
 --- @param scope string
 ---@private
-function state:create_windfooow(scope)
+function state:create_window(scope)
     self.window = vim.api.nvim_open_win(self.buffer, true, {
         style = "minimal",
         relative = "editor",

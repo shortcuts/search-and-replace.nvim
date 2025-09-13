@@ -20,7 +20,7 @@ function main.search_and_replace_by_pattern(scope)
         end
     end)
 
-    state.create_windfooow(state, scope)
+    state.create_window(state, scope)
 end
 
 --- Replaces the word under cursor or current visual selection in the current project.
@@ -38,7 +38,7 @@ function main.replace_by_pattern(scope)
         end
     end)
 
-    state.create_windfooow(state, scope)
+    state.create_window(state, scope)
 end
 
 --- Replaces the word under cursor or current visual selection using vim.lsp.buf.references().
@@ -62,7 +62,7 @@ function main.replace_by_references(scope)
         end, 500)
     end)
 
-    state.create_windfooow(state, scope)
+    state.create_window(state, scope)
 end
 
 --- Restores the backup files of the last `replace_*` operation.
