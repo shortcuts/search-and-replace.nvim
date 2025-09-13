@@ -26,9 +26,9 @@ T["setup()"]["sets exposed methods and default options value"] = function()
     Helpers.expect.global_type(child, "_G.SearchAndReplace", "table")
 
     -- public methods
-    Helpers.expect.global_type(child, "_G.SearchAndReplace.toggle", "function")
-    Helpers.expect.global_type(child, "_G.SearchAndReplace.disable", "function")
-    Helpers.expect.global_type(child, "_G.SearchAndReplace.enable", "function")
+    Helpers.expect.global_type(child, "_G.SearchAndReplace.replace_by_pattern", "function")
+    Helpers.expect.global_type(child, "_G.SearchAndReplace.replace_by_references", "function")
+    Helpers.expect.global_type(child, "_G.SearchAndReplace.replace_undo", "function")
 
     -- config
     Helpers.expect.global_type(child, "_G.SearchAndReplace.config", "table")
