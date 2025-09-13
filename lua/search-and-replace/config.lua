@@ -74,13 +74,11 @@ local function register_mappings(options, mappings)
 
     for name, command in pairs(mappings) do
         -- this specific mapping is disabled
-        if not options[name] then
-            return
-        end
+        if options[name] then
+            assert(type(options[name]) == "string", string.format("`%s` must be a string", name))
 
-        assert(type(options[name]) == "string", string.format("`%s` must be a string", name))
-        vim.api.nvim_set_keymap("n", options[name], command, { silent = true })
-        vim.api.nvim_set_keymap("v", options[name], command, { silent = true })
+            vim.keymap.set({ "n", "v" }, options[name], command)
+        end
     end
 end
 

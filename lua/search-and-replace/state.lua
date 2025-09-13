@@ -147,7 +147,8 @@ function state:create_buffer(scope, cb)
                 _G.SearchAndReplace.config.default_replace_prompt_to_selection
                 and self.selection ~= ""
             then
-                vim.api.nvim_buf_set_text(self.buffer, 0, 0, 0, 0, { self.selection })
+                vim.fn.prompt_setprompt(self.buffer, self.selection)
+                -- vim.api.nvim_buf_set_text(self.buffer, 0, 0, 0, 0, { self.selection })
             end
         end,
         group = self.augroup_name,
