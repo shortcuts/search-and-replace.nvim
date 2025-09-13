@@ -40,13 +40,32 @@ end
 
 T["setup()"]["overrides default values"] = function()
     child.lua([[require('search-and-replace').setup({
-        -- write all the options with a value different than the default ones
         debug = true,
+        default_replace_prompt_to_normal_mode = true,
+        default_replace_prompt_to_selection = true,
+        ---@type table
+        mappings = {
+            enabled = true,
+            search_and_replace_by_pattern = "<Leader>foo",
+            replace_by_pattern = "<Leader>bar",
+            replace_by_reference = "<Leader>baz",
+            replace_undo = "<Leader>buz",
+        },
     })]])
 
     -- assert the value, and the type
-    Helpers.expect.config(child, "debug", true)
-    Helpers.expect.config_type(child, "debug", "boolean")
+    Helpers.expect.config(child, "", {
+        debug = true,
+        default_replace_prompt_to_normal_mode = true,
+        default_replace_prompt_to_selection = true,
+        mappings = {
+            enabled = true,
+            replace_by_pattern = "<Leader>bar",
+            replace_by_reference = "<Leader>baz",
+            replace_undo = "<Leader>buz",
+            search_and_replace_by_pattern = "<Leader>foo",
+        },
+    })
 end
 
 return T
