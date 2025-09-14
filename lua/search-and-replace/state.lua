@@ -212,9 +212,7 @@ function state:cleanup(scope)
 
     self.reset(self)
 
-    if not _G.SearchAndReplace.config.default_replace_prompt_to_normal_mode then
-        vim.api.nvim_command("stopinsert")
-    end
+    vim.api.nvim_command("stopinsert!")
 end
 
 return state
